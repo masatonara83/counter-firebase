@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Firebase関係のインポート
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 /// 他ページのインポート
 import 'package:counter_firebase/normal_counter_page.dart';
@@ -44,13 +45,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-/// ホームページ画面
+/// ホーム画面
 class MyHomePage extends ConsumerWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
@@ -73,6 +74,7 @@ class MyHomePage extends ConsumerWidget {
   }
 }
 
+/// ページ遷移ボタン
 class _PagePushButton extends StatelessWidget {
   const _PagePushButton({
     Key? key,
@@ -91,10 +93,24 @@ class _PagePushButton extends StatelessWidget {
         child: Text(buttonTitle),
       ),
       onPressed: () {
+        AnalyticsService().logPage(buttonTitle);
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => pagename),
         );
+      },
+    );
+  }
+}
+
+/// Analyticsの実装
+class AnalyticsService {
+  /// ページ遷移のログ
+  Future<void> logPage(String screenName) async {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'screen_view',
+      parameters: {
+        'firebase_screen': screenName,
       },
     );
   }
